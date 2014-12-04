@@ -28,17 +28,18 @@ Pry.config.editor = "vim"
 #Hash[[:gemname,:version, :depends], gems.map { |i| [i.gemname, i.version, i.depends]},
 
 
+choices = []
 choices = menu  gems.map { |i| Hash[:gemname =>  i.gemname, :version => i.version, :depends => i.depends]}, :fields=>[:gemname, :version, :depends], :two_d=>true, :prompt => "Delete gems don't want to build. Choose:"
 
 gems.delete { |i| choices.include? i.gemname } 
 
 
 
-edit = menu  gems.map { |i| Hash[:gemname =>  i.gemname, :version => i.version, :depends => i.depends]}, :fields=>[:gemname, :version, :depends], :two_d=>true, :prompt => "Edit gems:"
+#edit = menu  gems.map { |i| Hash[:gemname =>  i.gemname, :version => i.version, :depends => i.depends]}, :fields=>[:gemname, :version, :depends], :two_d=>true, :prompt => "Edit gems:"
 
-for_edit = gems.update { |i|  edit.include? i.gemname }
-a = for_edit.each
-binding.pry
+#for_edit = gems.update { |i|  edit.include? i.gemname }
+#a = for_edit.each
+#binding.pry
   
 gems.map {|i| i.write; p "Writing #{i.gemname}.." }
 

@@ -9,17 +9,17 @@ require 'open-uri'
 require "fiber" 
 
 
-class GemApi
+class Hashes2Objects
 
-  def initialize(result)
-    @api = hashes2ostruct(result)
+  def initialize(object)
+    @object = hashes2ostruct(object)
   end
 
   def method_missing(name, *args, &block)
     begin
-      @api.send(name)
-    rescue
-      puts "Method cannot be defined!"
+      @object.send(name)
+    rescue NoMethodError => e
+      return nil
     end
   end
 
@@ -42,6 +42,10 @@ class GemApi
   end
 end
 
+class GemApiObject < Hashes2Objects
+
+end
+
 
 class GemDebian
 
@@ -62,7 +66,7 @@ class GemDebian
     @package        = GemDebian::SZN_RUBY_VER + gem.name
     @depends        = gem.dependencies.runtime.count > 0 ? ", " + gem.dependencies.runtime.map {|i|  GemDebian::SZN_RUBY_VER + i.name }.join(", ") : ""
     @build_depends  = ""
-    @architecture   = "All"
+    @architecture   = "all"
     @source         = GemDebian::SZN_RUBY_VER + gem.name
     @gem_exact_name = gem.gem_uri.split("/").last
     @template_path  = GemDebian::TEMPLATE_PATH
@@ -207,7 +211,7 @@ class DependentGemsCollection
     buffer = resp.body
     result = JSON.parse(buffer)
 
-    object = GemApi.new(JSON.parse(buffer))
+    object = GemApiObject.new(JSON.parse(buffer))
 
     @dependency[gem] = [] unless @dependency.has_key? gem
 
