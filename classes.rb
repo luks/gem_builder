@@ -6,6 +6,7 @@ require 'pp'
 require 'pry'
 require 'open-uri'
 require "fiber"
+require "date"
 
 class Hashes2Objects
 
@@ -61,6 +62,7 @@ class GemDebian
     @gem_exact_name = gem.gem_uri.split("/").last
     @template_path  = Constants::TEMPLATE_PATH
     @packages_path  = Constants::PACKAGES_PATH + Constants::SZN_RUBY_VER + gem.name
+    @debian_time    = Time.now.strftime("%a, %d %b %Y %H:%M:%S %z")
   end
 
   def write
@@ -99,6 +101,7 @@ class GemDebian
 
     changelog = changelog.gsub(/szn-ruby2.1-xxx/, "#{@package}")
     changelog = changelog.gsub(/(xxx-1)/, "#{@version}-1")
+    changelog = changelog.gsub(/xxx-changelog-user-email-date/, "#{Constants::AUTHOR} <#{Constants::EMAIL}>  #{@debian_time}")
 
     File.open(@packages_path+'/debian/control', "w")    {|file| file.puts control}
     File.open(@packages_path+'/debian/rules', "w")      {|file| file.puts rules}

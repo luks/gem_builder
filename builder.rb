@@ -12,7 +12,8 @@ class Constants
   TEMPLATE_PATH = BASE_PATH + "/template/szn-ruby2.1-xxx"
   PACKAGES_PATH = BASE_PATH + "/packages/"
   GEM_API_URL='http://rubygems.org/api/v1/gems/'
-  AUTHOR = "LUKA MUSIN"
+  AUTHOR = "Luka Musin"
+  EMAIL = "luka.musin@firma.seznam.cz"
 
 end
 
