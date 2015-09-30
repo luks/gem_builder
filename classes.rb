@@ -6,7 +6,7 @@ require 'json'
 require 'pp'
 require 'pry'
 require 'open-uri'
-require "fiber" 
+require "fiber"
 
 
 class Hashes2Objects
@@ -88,12 +88,13 @@ class GemDebian
       end
     end
   end
-  
+
   def modify_debian_files
 
-    control =  File.read(@packages_path+'/debian/control')
-    rules   =  File.read(@packages_path+'/debian/rules')
-    
+    control     =  File.read(@packages_path+'/debian/control')
+    rules       =  File.read(@packages_path+'/debian/rules')
+    changelog   =  File.read(@packages_path+'/debian/changelog')
+
     control = control.gsub(/xxx-source/,  @source)
     control = control.gsub(/xxx-builds-depends/,  @build_depends)
     control = control.gsub(/xxx-homepage/,  @homepage)
@@ -102,10 +103,13 @@ class GemDebian
     control = control.gsub(/xxx-depends/,  @depends)
     control = control.gsub(/xxx-architecture/,  @architecture)
     control = control.gsub(/xxx-description/,  @description)
-    
+
     rules = rules.gsub(/xxx-gemname/, @gemname)
     rules = rules.gsub(/xxx-version/, @version)
-  
+
+    changelog = changelog.gsub(/szn-ruby2.1-xxx/, "szn-ruby2.1-#{@gemname}")
+    changelog = changelog.gsub(/(xxx-1)/, "#{@version}-1")
+
     File.open(@packages_path+'/debian/control', "w") {|file| file.puts control}
     File.open(@packages_path+'/debian/rules', "w") {|file| file.puts rules}
 
@@ -113,7 +117,7 @@ class GemDebian
 end
 
 module GemsEnumerable
-  
+
   def map
     out = []
     each { |e| out << yield(e) }
@@ -125,7 +129,7 @@ module GemsEnumerable
     each { |e| out << e if yield(e) }
     out
   end
-  
+
   def delete
     out = []
     each { |e| out << e unless yield(e) }
@@ -139,25 +143,25 @@ module GemsEnumerable
 end
 
 class GemsEnumerator
-  
+
   include GemsEnumerable
-  
-  def initialize(target, iter) 
+
+  def initialize(target, iter)
     @target = target
     @iter   = iter
   end
-  
+
   def each(&block)
-    @target.send(@iter, &block) 
+    @target.send(@iter, &block)
   end
-  
+
   def next
     @fiber ||= Fiber.new do
       each { |e| Fiber.yield(e) }
       raise StopIteration
     end
     if @fiber.alive?
-      @fiber.resume 
+      @fiber.resume
     else
       raise StopIteration
     end
@@ -168,11 +172,11 @@ class GemsEnumerator
 end
 
 class DependentGemsCollection
-  
+
   include GemsEnumerable
-  
+
   GEM_API_URL='http://rubygems.org/api/v1/gems/'
-  
+
   attr_accessor :dependency, :gems
 
   def initialize(gem)
@@ -180,15 +184,15 @@ class DependentGemsCollection
     @gems = []
     gem_dependency_recursive(gem)
   end
-  
+
   def <<(object)
-    @gems << object 
+    @gems << object
   end
-  
+
   def delete &block
     @gems = super &block
   end
-  
+
   def update &block
     @gems.select &block
   end
