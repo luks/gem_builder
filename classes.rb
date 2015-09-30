@@ -107,11 +107,12 @@ class GemDebian
     rules = rules.gsub(/xxx-gemname/, @gemname)
     rules = rules.gsub(/xxx-version/, @version)
 
-    changelog = changelog.gsub(/szn-ruby2.1-xxx/, "szn-ruby2.1-#{@gemname}")
+    changelog = changelog.gsub(/szn-ruby2.1-xxx/, "#{@package}")
     changelog = changelog.gsub(/(xxx-1)/, "#{@version}-1")
 
     File.open(@packages_path+'/debian/control', "w") {|file| file.puts control}
     File.open(@packages_path+'/debian/rules', "w") {|file| file.puts rules}
+    File.open(@packages_path+'/debian/changelog', "w") {|file| file.puts changelog}
 
   end
 end
@@ -167,8 +168,6 @@ class GemsEnumerator
     end
   end
 
-
-
 end
 
 class DependentGemsCollection
@@ -214,11 +213,8 @@ class DependentGemsCollection
     resp = Net::HTTP.get_response(URI.parse(gem_api_url))
     buffer = resp.body
     result = JSON.parse(buffer)
-
     object = GemApiObject.new(JSON.parse(buffer))
-
     @dependency[gem] = [] unless @dependency.has_key? gem
-
     object.dependencies.runtime.each do |struct|
       next if @dependency[gem].include? struct.name + ' ' + struct.requirements
       gem_dependency_recursive(struct.name)
