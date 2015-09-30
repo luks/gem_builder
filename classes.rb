@@ -1,13 +1,11 @@
 #!/usr/local/bin/ruby
 
-
 require 'net/http'
 require 'json'
 require 'pp'
 require 'pry'
 require 'open-uri'
 require "fiber"
-
 
 class Hashes2Objects
 
@@ -42,17 +40,9 @@ class Hashes2Objects
   end
 end
 
-class GemApiObject < Hashes2Objects
-
-end
-
+class GemApiObject < Hashes2Objects; end
 
 class GemDebian
-
-  SZN_RUBY_VER = "szn-ruby2.1-"
-  BASE_PATH = File.expand_path(File.dirname(__FILE__))
-  TEMPLATE_PATH = GemDebian::BASE_PATH + "/template/szn-ruby2.1-xxx"
-  PACKAGES_PATH = GemDebian::BASE_PATH + "/packages/"
 
   attr_accessor :build_depends, :architecture
   attr_reader :gemname, :version, :description, :homepage, :gem_uri, :package, :depends, :source, :gem_exact_name, :template_path, :package_path
@@ -63,15 +53,14 @@ class GemDebian
     @description    = gem.info
     @homepage       = gem.homepage_uri
     @gem_uri        = gem.gem_uri
-    @package        = GemDebian::SZN_RUBY_VER + gem.name
-    @depends        = gem.dependencies.runtime.count > 0 ? ", " + gem.dependencies.runtime.map {|i|  GemDebian::SZN_RUBY_VER + i.name }.join(", ") : ""
+    @package        = Constants::SZN_RUBY_VER + gem.name
+    @depends        = gem.dependencies.runtime.count > 0 ? ", " + gem.dependencies.runtime.map {|i|  Constants::SZN_RUBY_VER + i.name }.join(", ") : ""
     @build_depends  = ""
     @architecture   = "all"
-    @source         = GemDebian::SZN_RUBY_VER + gem.name
+    @source         = Constants::SZN_RUBY_VER + gem.name
     @gem_exact_name = gem.gem_uri.split("/").last
-    @template_path  = GemDebian::TEMPLATE_PATH
-    @packages_path  = GemDebian::PACKAGES_PATH + GemDebian::SZN_RUBY_VER + gem.name
-
+    @template_path  = Constants::TEMPLATE_PATH
+    @packages_path  = Constants::PACKAGES_PATH + Constants::SZN_RUBY_VER + gem.name
   end
 
   def write
@@ -80,6 +69,7 @@ class GemDebian
   end
 
   private
+
   def copy_template
     if !File.directory?(@packages_path)
       FileUtils.cp_r(@template_path, @packages_path)
@@ -97,7 +87,7 @@ class GemDebian
 
     control = control.gsub(/xxx-source/,  @source)
     control = control.gsub(/xxx-builds-depends/,  @build_depends)
-    control = control.gsub(/xxx-homepage/,  @homepage)
+    control = control.gsub(/xxx-homepage/,  @homepage) if @homepage
     control = control.gsub(/xxx-package/,  @package)
     control = control.gsub(/xxx-architecture/,  @architecture)
     control = control.gsub(/xxx-depends/,  @depends)
@@ -110,9 +100,9 @@ class GemDebian
     changelog = changelog.gsub(/szn-ruby2.1-xxx/, "#{@package}")
     changelog = changelog.gsub(/(xxx-1)/, "#{@version}-1")
 
-    File.open(@packages_path+'/debian/control', "w") {|file| file.puts control}
-    File.open(@packages_path+'/debian/rules', "w") {|file| file.puts rules}
-    File.open(@packages_path+'/debian/changelog', "w") {|file| file.puts changelog}
+    File.open(@packages_path+'/debian/control', "w")    {|file| file.puts control}
+    File.open(@packages_path+'/debian/rules', "w")      {|file| file.puts rules}
+    File.open(@packages_path+'/debian/changelog', "w")  {|file| file.puts changelog}
 
   end
 end
@@ -170,11 +160,10 @@ class GemsEnumerator
 
 end
 
+
 class DependentGemsCollection
 
   include GemsEnumerable
-
-  GEM_API_URL='http://rubygems.org/api/v1/gems/'
 
   attr_accessor :dependency, :gems
 
@@ -204,12 +193,11 @@ class DependentGemsCollection
     end
   end
 
-
   private
 
   def gem_dependency_recursive(gem)
 
-    gem_api_url = DependentGemsCollection::GEM_API_URL + gem + '.json'
+    gem_api_url = Constants::GEM_API_URL + gem + '.json'
     resp = Net::HTTP.get_response(URI.parse(gem_api_url))
     buffer = resp.body
     result = JSON.parse(buffer)
@@ -223,7 +211,6 @@ class DependentGemsCollection
     self << GemDebian.new(object) if self.select { |i| i.gemname == gem }.empty?
 
   end
-
 end
 
 

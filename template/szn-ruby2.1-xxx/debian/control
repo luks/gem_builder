@@ -2,11 +2,11 @@ Source: xxx-source
 Section: ruby
 Priority: optional
 Maintainer: Provozni vyvoj Rubysti <pvr@firma.seznam.cz>
-Build-Depends: debhelper, szn-ruby2.1, build-essential, less xxx-builds-depends
+Build-Depends: debhelper, szn-ruby2.1, build-essential, lessxxx-builds-depends
 Standards-Version: 3.9.3
 Homepage: xxx-homepage
 
 Package: xxx-package
 Architecture: xxx-architecture
-Depends: ${shlibs:Depends}, ${misc:Depends}, szn-ruby2.1  xxx-depends
+Depends: ${shlibs:Depends}, ${misc:Depends}, szn-ruby2.1xxx-depends
 Description: xxx-description

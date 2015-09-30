@@ -7,9 +7,12 @@ extend Hirb::Console
 
 class Constants
 
+  SZN_RUBY_VER = "szn-ruby2.1-"
   BASE_PATH = File.expand_path(File.dirname(__FILE__))
-  SZN_RUBY_VER = "szn-ruby-2.1-"
+  TEMPLATE_PATH = BASE_PATH + "/template/szn-ruby2.1-xxx"
+  PACKAGES_PATH = BASE_PATH + "/packages/"
   GEM_API_URL='http://rubygems.org/api/v1/gems/'
+  AUTHOR = "LUKA MUSIN"
 
 end
 
