@@ -1,5 +1,6 @@
-# gem_builder
-Gem builder is simple tool for packaging ruby gems into debian packages. 
+## gem_builder
+
+### Gem builder is simple tool for packaging ruby gems into debian packages. 
 example:
 
   ./builder.rb rails
